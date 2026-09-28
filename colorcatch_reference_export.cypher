@@ -1,5 +1,4 @@
 // ColorCatch reference score distribution
-// Run once in Neo4j and give the resulting score/count table to the developer.
 
 MATCH (r:Response)
 WHERE r._gameId STARTS WITH "ColorCatch_"
