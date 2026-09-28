@@ -1,7 +1,4 @@
 // ColorCatch percentile lookup for every possible score (0-42)
-//
-// Run once in Neo4j and export the result as CSV.
-// The output can be used directly by the developer as a lookup table.
 
 MATCH (r:Response)
 WHERE r._gameId STARTS WITH "ColorCatch_"
