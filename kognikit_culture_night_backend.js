@@ -11,10 +11,6 @@
 //   NEO4J_URI=neo4j+s://...
 //   NEO4J_USER=...
 //   NEO4J_PASSWORD=...
-//
-// IMPORTANT:
-// Keep Neo4j credentials server-side.
-// The signup CSV path should be on persistent server storage in production.
 
 import express from "express";
 import neo4j from "neo4j-driver";
