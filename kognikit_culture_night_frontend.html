@@ -1,0 +1,187 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>KogniKit Culture Night</title>
+<style>
+*{box-sizing:border-box}body{margin:0;font-family:system-ui,-apple-system,sans-serif;background:#f6f7f9;color:#1f2937}
+main{width:100%;margin:0 auto}.card{width:min(720px,calc(100% - 32px));margin:48px auto}.card{background:#fff;border:1px solid #e4e7ec;border-radius:20px;padding:clamp(24px,5vw,48px)}
+h1{font-size:clamp(2rem,7vw,3.5rem);margin:0 0 12px}h2{margin-top:0}.muted{color:#667085}p{line-height:1.6}
+.actions{display:flex;gap:12px;flex-wrap:wrap;margin-top:28px}button,.button{border:0;border-radius:12px;min-height:48px;padding:0 20px;font:inherit;font-weight:700;cursor:pointer;text-decoration:none;display:inline-flex;align-items:center}
+.primary{background:#6656d9;color:#fff}.secondary{background:#eef0f4;color:#1f2937}.screen[hidden]{display:none}
+.results{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:28px 0}.metric{padding:20px 14px;border:1px solid #e4e7ec;border-radius:14px;text-align:center}.metric strong{display:block;font-size:1.7rem}
+.highlight{padding:22px;border-radius:14px;background:#f1efff;font-size:1.2rem;font-weight:700;text-align:center}
+form{border-top:1px solid #e4e7ec;margin-top:32px;padding-top:28px}label{display:block;font-weight:700;margin-bottom:8px}
+input[type=email]{width:100%;min-height:48px;border:1px solid #cfd4dc;border-radius:10px;padding:0 14px;font:inherit;font-size:16px}
+.consent{display:flex;gap:10px;align-items:flex-start;margin:14px 0;font-size:.9rem;color:#667085}.status{min-height:24px;margin-top:12px;font-weight:600}
+code{background:#f2f4f7;padding:2px 5px;border-radius:5px}@media(max-width:560px){main{margin:20px auto}.results{grid-template-columns:1fr}}
+
+.game-screen{
+  width:min(1500px,calc(100vw - 24px));
+  margin:12px auto;
+}
+.game-screen iframe{
+  display:block;
+  width:100%;
+  height:calc(100vh - 100px);
+  min-height:760px;
+  border:0;
+  border-radius:0;
+  background:transparent;
+}
+.game-controls{
+  display:flex;
+  justify-content:flex-end;
+  padding:14px 8px 0;
+}
+.next-arrow{
+  width:58px;
+  height:58px;
+  min-height:58px;
+  padding:0;
+  border:0;
+  border-radius:50%;
+  background:#6656d9;
+  color:#fff;
+  font-size:32px;
+  line-height:1;
+  font-weight:700;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  cursor:pointer;
+}
+.next-arrow:hover{background:#5143bd}
+.next-arrow:focus-visible{outline:3px solid #b9b2ff;outline-offset:3px}
+@media(max-width:700px){
+  .game-screen{width:100%;margin:0}
+  .game-screen iframe{height:calc(100vh - 80px);min-height:680px}
+}
+
+</style>
+</head>
+<body><main>
+<section id="start" class="card screen">
+<p class="muted">KogniKit · Culture Night prototype</p><h1>How quick is your mind?</h1>
+<p>Play ColorCatch and see how your performance compares with other players.</p>
+<div class="actions">
+<button id="playGame" class="primary" type="button">Play ColorCatch</button>
+<button id="demo" class="secondary" type="button">Demo completed game</button>
+</div>
+<p class="muted">For now, “Demo completed game” uses the verified example result from our analysis. Later the actual completed <code>game_id</code> should load the result from a server endpoint.</p>
+</section>
+
+<section id="game" class="screen game-screen" hidden>
+<iframe
+  id="colorCatchFrame"
+  title="KogniKit ColorCatch"
+  src="about:blank"
+  data-src="https://delphi.hybridintelligence.eu/ColorCatch"
+  loading="lazy"
+  allow="fullscreen">
+</iframe>
+<div class="game-controls">
+  <button id="prototypeFinished" class="next-arrow" type="button" aria-label="Continue to results" title="Continue to results">→</button>
+</div>
+</section>
+
+<section id="result" class="card screen" hidden>
+<p class="muted">Your ColorCatch result</p><h2>Here's how you did.</h2>
+<div class="results">
+<div class="metric"><strong id="score"></strong><span>correct</span></div>
+<div class="metric"><strong id="accuracy"></strong><span>accuracy</span></div>
+<div class="metric"><strong id="reference"></strong><span>reference players</span></div>
+</div>
+<div class="highlight">You performed better than <span id="percentile"></span> of players.</div>
+
+<form id="signup">
+<h2>Would you like to play more with KogniKit?</h2>
+<p class="muted">Leave your email to hear about future opportunities to participate.</p>
+<label for="email">Email address</label>
+<input id="email" type="email" autocomplete="email" placeholder="you@example.com" required>
+<label class="consent"><input id="consent" type="checkbox" required><span>I agree to be contacted about future KogniKit opportunities. Replace this with CHI's approved consent/privacy wording.</span></label>
+<div class="actions">
+<button class="primary" type="submit">Sign me up</button>
+</div>
+<p id="status" class="status" aria-live="polite"></p>
+</form>
+<div class="actions"><button id="restart" class="secondary" type="button">Back to start</button></div>
+</section>
+</main>
+<script>
+const demoResult={correct:37,total:42,accuracy:88.1,percentile:93.3,referencePopulation:833};
+const start=document.querySelector("#start"),game=document.querySelector("#game"),result=document.querySelector("#result");
+function showResult(d){
+ document.querySelector("#score").textContent=`${d.correct} / ${d.total}`;
+ document.querySelector("#accuracy").textContent=`${d.accuracy.toFixed(1)}%`;
+ document.querySelector("#percentile").textContent=`${d.percentile.toFixed(1)}%`;
+ document.querySelector("#reference").textContent=d.referencePopulation.toLocaleString();
+ start.hidden=true;game.hidden=true;result.hidden=false;
+}
+document.querySelector("#playGame").addEventListener("click",()=>{
+  start.hidden=true;
+  game.hidden=false;
+  const frame=document.querySelector("#colorCatchFrame");
+  if(frame.src==="about:blank" || frame.getAttribute("src")==="about:blank"){
+    frame.src=frame.dataset.src;
+  }
+  window.scrollTo({top:0,behavior:"smooth"});
+});
+document.querySelector("#prototypeFinished").addEventListener("click",()=>{
+  game.hidden=true;
+  showResult(demoResult);
+});
+document.querySelector("#demo").addEventListener("click",()=>showResult(demoResult));
+document.querySelector("#restart").addEventListener("click",()=>{result.hidden=true;game.hidden=true;start.hidden=false;document.querySelector("#signup").reset();document.querySelector("#status").textContent=""});
+document.querySelector("#signup").addEventListener("submit", async (event) => {
+  event.preventDefault();
+
+  const emailInput = document.querySelector("#email");
+  const consent = document.querySelector("#consent");
+  const status = document.querySelector("#status");
+  const submitButton = event.submitter;
+
+  if (!emailInput.checkValidity() || !consent.checked) {
+    status.textContent = "Please enter a valid email and confirm consent.";
+    return;
+  }
+
+  if (submitButton) submitButton.disabled = true;
+  status.textContent = "Saving signup...";
+
+  try {
+    const response = await fetch("/api/signup", {
+      method: "POST",
+      headers: {"Content-Type": "application/json"},
+      body: JSON.stringify({
+        email: emailInput.value.trim(),
+        consent: true
+      })
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new Error(data.error || "Could not save signup.");
+    }
+
+    status.textContent = "Thanks! Your signup has been saved.";
+    emailInput.value = "";
+    consent.checked = false;
+  } catch (error) {
+    console.error(error);
+    status.textContent = "Could not save your signup. Please try again.";
+  } finally {
+    if (submitButton) submitButton.disabled = false;
+  }
+});
+
+/*
+Production architecture:
+Browser -> your backend/API -> read-only Neo4j query -> JSON result -> showResult(data)
+Never place Neo4j credentials in this HTML.\n\nEmail signup note: POST /api/signup stores consented email + server timestamp in persistent server-side storage.
+
+Example JSON:
+{"correct":37,"total":42,"accuracy":88.1,"percentile":93.3,"referencePopulation":833}
+*/
+</script></body></html>
