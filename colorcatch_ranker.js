@@ -2,24 +2,21 @@
 ColorCatch empirical percentile ranker
 =======================================
 
-Reference-population definition used when exporting historical scores:
-- ColorCatch games only
-- participant IDs containing "bianka" or "test" excluded, case-insensitively
-- Practice Level 1 responses excluded
-- completed games must contain exactly 42 proper responses
-- one completed game per participant, selected deterministically after sorting by game_id
-
-Tie policy:
-STRICT. A participant "performed better than X% of players" only when the
+Change log: 
+- Reference-population definition used when exporting historical scores:
+  -  ColorCatch games only
+  - participant IDs containing "bianka" or "test" excluded, case-insensitively
+  - Practice Level 1 responses excluded
+  - completed games must contain exactly 42 proper responses
+  - one completed game per participant, selected deterministically after sorting by game_id
+- Tie policy:STRICT. A participant "performed better than X% of players" only when the
 historical player's score is strictly lower than the participant's score.
 
-HOW TO USE
-----------
+USE:
 1. Run the companion Neo4j export query once.
 2. Replace HISTORICAL_SCORE_COUNTS below with the exported score/count pairs.
 3. Call rankColorCatchScore(newScore).
-
-The function does not query Neo4j and does not require participant-level data.
+- The function does not query Neo4j and does not require participant-level data.
 */
 
 // Replace this object with the output of the one-time Neo4j export.
