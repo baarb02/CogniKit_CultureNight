@@ -1,4 +1,4 @@
-# ColorCatch percentile implementation
+# ColorCatch percentile implementation (AI notes)
 
 This version separates the historical reference distribution from live scoring.
 
